@@ -1,0 +1,14 @@
+{
+  "name": "memento-plugin",
+  "owner": {
+    "name": "kykiles"
+  },
+  "description": "Плагин Memento для Claude Code",
+  "plugins": [
+    {
+      "name": "memento",
+      "source": "./",
+      "description": "Долговременная память Memento для Claude Code: MCP-сервер памяти и оглавление памяти проекта в начале каждой сессии."
+    }
+  ]
+}
