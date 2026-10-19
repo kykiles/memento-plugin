@@ -1,35 +1,58 @@
-# Memento для Claude Code
+# Memento for Claude Code
 
-Плагин подключает к Claude Code долговременную память Memento:
+This plugin connects Claude Code to Memento, a long-term memory server:
 
-- MCP-сервер `memento` — инструменты памяти (`memory_index`, `memory_recall`, `memory_remember`, `memory_episode` и другие); правила работы с памятью агент получает от сервера;
-- хук начала сессии — оглавление памяти текущего проекта сразу в контексте;
-- хук конца ответа — один раз за сессию напоминает записать эпизод, если была работа (коммит, PR или правки файлов), а эпизод не записан.
+- the `memento` MCP server provides the memory tools (`memory_index`, `memory_recall`, `memory_remember`, `memory_episode` and others); the agent receives the rules for using memory from the server;
+- a session start hook puts the memory index of the current project into context right away;
+- a stop hook reminds the agent once per session to record an episode if there was work (a commit, a PR or file edits) and no episode was recorded.
 
-## Установка
+## Installation
 
-В Claude Code:
+Run one command in a terminal (PowerShell, bash or zsh), on one line, with your own token:
+
+```
+claude plugin install memento --marketplace kykiles/memento-plugin --config url=https://memento.degulator.top --config token=<token>
+```
+
+Then restart Claude Code. Keep `--config url=…` even with the default server: Claude Code does not save the option's default value, and the hooks need it.
+
+The token is kept in Claude Code's secure credential storage, not in the settings files. The command stays in your shell history; clear it if the machine is shared.
+
+Alternatively, inside Claude Code:
 
 ```
 /plugin marketplace add kykiles/memento-plugin
 /plugin install memento@memento-plugin
 ```
 
-Claude Code спросит адрес сервера (по умолчанию `https://memento.degulator.top`, без `/mcp`) и токен. Токен хранится в защищённом хранилище Claude Code, а не в файлах настроек.
+Claude Code will ask for the server address (`https://memento.degulator.top`, without `/mcp`) and the token.
 
-## Токен
+Do not add a separate `memento` MCP server with the same URL by hand: Claude Code then hides the plugin's server.
 
-Токен выдаёт владелец сервера Memento — свой для каждого пользователя:
+## Check
+
+- `/mcp` in Claude Code lists `plugin:memento:memento` as connected;
+- a new session in a project starts with the line `memento: оглавление памяти проекта …` (the memory index; empty in a new project).
+
+## Token
+
+The owner of the Memento server issues each user their own token:
 
 ```
-python -m memento token add claude-code --rights write --user <логин>
+python -m memento token add claude-code --rights write --user <login>
 ```
 
-## Что нужно
+## Requirements
 
-- Git. На Windows — [Git for Windows](https://gitforwindows.org/): его `bash` запускает хуки плагина. Без него хуки не сработают, но MCP-сервер работает: оглавление агент возьмёт сам вызовом `memory_index`.
-- `curl` — есть в Git for Windows, macOS и большинстве Linux.
+- Git. On Windows, [Git for Windows](https://gitforwindows.org/): its `bash` runs the plugin's hooks. Without it the hooks do not run, but the MCP server works: the agent gets the memory index itself by calling `memory_index`.
+- `curl`: included in Git for Windows, macOS and most Linux distributions.
 
-## Лицензия
+## Removal
 
-MIT — см. [LICENSE](LICENSE).
+```
+claude plugin uninstall memento@memento-plugin
+```
+
+## License
+
+MIT, see [LICENSE](LICENSE).
