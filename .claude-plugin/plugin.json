@@ -1,7 +1,7 @@
 {
   "name": "memento",
   "displayName": "Memento",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Долговременная память Memento для Claude Code: MCP-сервер памяти и оглавление памяти проекта в начале каждой сессии.",
   "author": {
     "name": "kykiles"

@@ -33,7 +33,7 @@ names=$(uses '[^"]*' | LC_ALL=C grep -a -o '"type": *"tool_use"[^{}]*"name": *"[
 printf '%s\n' "$names" | grep -q 'memory_episode$' && exit 0
 edits=$(printf '%s\n' "$names" | grep -c -x -E 'Edit|Write|NotebookEdit')
 if [ "$edits" -ge 3 ] ||
-	uses Bash | LC_ALL=C grep -a -o -E '"command": *"([^"\\]|\\.)*"' |
+	{ uses Bash; uses PowerShell; } | LC_ALL=C grep -a -o -E '"command": *"([^"\\]|\\.)*"' |
 	LC_ALL=C grep -q -E 'git commit|gh pr (create|merge)'; then
 	mkdir -p "$CLAUDE_PLUGIN_DATA/episode" && : >"$mark" || exit 0
 	printf '{"decision": "block", "reason": "%s"}\n' "$REASON"

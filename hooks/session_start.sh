@@ -1,7 +1,8 @@
 #!/bin/sh
 # Memento, SessionStart: оглавление памяти проекта — в контекст новой сессии.
 # Проект — git remote папки проекта, без remote — имя папки. Адрес и токен — из настроек
-# плагина (CLAUDE_PLUGIN_OPTION_URL, CLAUDE_PLUGIN_OPTION_TOKEN). Любой сбой — одна строка
+# плагина (CLAUDE_PLUGIN_OPTION_URL, CLAUDE_PLUGIN_OPTION_TOKEN); адрес по умолчанию Claude
+# Code в настройки не сохраняет — он и здесь по умолчанию. Любой сбой — одна строка
 # о недоступности и код 0: сессия стартует и без памяти. POSIX sh; на Windows — Git Bash.
 
 down() {
@@ -10,7 +11,7 @@ down() {
 }
 
 [ -n "$CLAUDE_PLUGIN_OPTION_TOKEN" ] || down "не задан токен"
-[ -n "$CLAUDE_PLUGIN_OPTION_URL" ] || down "не задан адрес сервера"
+url=${CLAUDE_PLUGIN_OPTION_URL:-https://memento.degulator.top}
 
 dir=${CLAUDE_PROJECT_DIR:-$(pwd)}
 name=$(git -C "$dir" remote get-url origin 2>/dev/null)
@@ -21,14 +22,14 @@ fi
 
 # Заголовок с токеном — через stdin (-H @-): аргументы процесса видны всем на машине.
 out=$(printf 'Authorization: Bearer %s\n' "$CLAUDE_PLUGIN_OPTION_TOKEN" |
-	curl -fsS --max-time 2 --get --data-urlencode "project=$name" -H @- \
-		"${CLAUDE_PLUGIN_OPTION_URL%/}/v1/index" 2>&1)
+	curl -fsS --max-time 4 --get --data-urlencode "project=$name" -H @- \
+		"${url%/}/v1/index" 2>&1)
 code=$?
 if [ "$code" -ne 0 ]; then
 	last=$(printf '%s\n' "$out" | tail -n 1)
 	case $code in
 	22) down "HTTP $(printf '%s' "$last" | sed -n 's/.*error: *\([0-9][0-9]*\).*/\1/p')" ;;
-	28) down "нет ответа за 2 с" ;;
+	28) down "нет ответа за 4 с" ;;
 	*) down "нет связи: $(printf '%s' "$last" | sed 's/^curl: ([0-9]*) //')" ;;
 	esac
 fi

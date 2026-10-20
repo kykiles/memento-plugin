@@ -8,26 +8,43 @@ This plugin connects Claude Code to Memento, a long-term memory server:
 
 ## Installation
 
-Run one command in a terminal (PowerShell, bash or zsh), on one line, with your own token:
+Run these two commands yourself in a terminal (PowerShell, bash or zsh), with your own token:
 
 ```
-claude plugin install memento --marketplace kykiles/memento-plugin --config url=https://memento.degulator.top --config token=<token>
+claude plugin marketplace add https://github.com/kykiles/memento-plugin.git
+claude plugin install memento@memento-plugin --config url=https://memento.degulator.top --config token=<token>
 ```
 
-Then restart Claude Code. Keep `--config url=…` even with the default server: Claude Code does not save the option's default value, and the hooks need it.
+Then restart Claude Code. Keep `--config url=…` even with the default server: Claude Code does not save the option's default value.
 
-The token is kept in Claude Code's secure credential storage, not in the settings files. The command stays in your shell history; clear it if the machine is shared.
+Do not paste the token into a Claude Code chat and do not ask the agent to install the plugin for you: whatever you paste stays in plain text in the session history, and auto mode blocks the install as a data leak. The token is kept in Claude Code's secure credential storage, not in the settings files. The command stays in your shell history; clear it if the machine is shared.
 
 Alternatively, inside Claude Code:
 
 ```
-/plugin marketplace add kykiles/memento-plugin
+/plugin marketplace add https://github.com/kykiles/memento-plugin.git
 /plugin install memento@memento-plugin
 ```
 
 Claude Code will ask for the server address (`https://memento.degulator.top`, without `/mcp`) and the token.
 
 Do not add a separate `memento` MCP server with the same URL by hand: Claude Code then hides the plugin's server.
+
+### Auto mode
+
+Auto mode may block memory tools that send the project name to the server. Allow them in `~/.claude/settings.json` yourself (the agent cannot change its own permissions):
+
+```json
+{
+  "permissions": {
+    "allow": ["mcp__plugin_memento_memento"]
+  }
+}
+```
+
+## Projects
+
+Memory is kept per project. The project is the `origin` remote of the git repository Claude Code was started in (`git@github.com:u/r.git` and `https://github.com/u/r` are the same project); without a remote, the folder name. A nested repository is a separate project, and a session started in the home folder gets a project named after it. Start Claude Code in the repository you work on; the project of a running session does not change.
 
 ## Check
 
