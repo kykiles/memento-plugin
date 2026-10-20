@@ -51,6 +51,17 @@ Memory is kept per project. The project is the `origin` remote of the git reposi
 - `/mcp` in Claude Code lists `plugin:memento:memento` as connected;
 - a new session in a project starts with the line `memento: оглавление памяти проекта …` (the memory index; empty in a new project).
 
+## Updates
+
+Claude Code does not update plugins from third-party marketplaces unless you turn it on. Turn it on once: in Claude Code, `/plugin` → Marketplaces → `memento-plugin` → Enable auto-update. Claude Code then fetches new versions at startup; a new version takes effect after a restart.
+
+To update by hand:
+
+```
+claude plugin marketplace update memento-plugin
+claude plugin update memento@memento-plugin
+```
+
 ## Token
 
 The owner of the Memento server issues each user their own token:
