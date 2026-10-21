@@ -4,7 +4,23 @@ This plugin connects Claude Code to Memento, a long-term memory server:
 
 - the `memento` MCP server provides the memory tools (`memory_index`, `memory_recall`, `memory_remember`, `memory_episode` and others); the agent receives the rules for using memory from the server;
 - a session start hook puts the memory index of the current project into context right away;
-- a stop hook reminds the agent once per session to record an episode if there was work (a commit, a PR or file edits) and no episode was recorded.
+- a prompt hook and a turn-end hook keep a trimmed episode of every session on the server (the auto-episode) and, at a moment worth remembering, give the agent one line asking it to record a fact: a correction, "remember this", an agreed decision, "important", or a problem solved after several failed commands. No such moment, no line.
+
+## What is sent to the server
+
+On every prompt (`UserPromptSubmit`): the project name, your prompt text and the hook event as Claude Code passes it (session id, transcript path, working folder, permission mode).
+
+At the end of every agent turn (`Stop`): the project name, the hook event (session id, transcript path, working folder, permission mode, the agent's final message of the turn, and the list of running background tasks with their commands), and from the session transcript:
+
+- file paths the agent edited in this session (`Edit`, `Write`, `NotebookEdit`);
+- commit hashes and commit subjects made in the project since the session started;
+- how many commands failed in this turn, whether the last one succeeded, whether the agent called `memory_remember`, and whether the session used `WebFetch`, `WebSearch` or a non-Memento MCP tool (such sessions are marked untrusted).
+
+Command output (tool results, stdout and stderr) and file contents are never sent. The server keeps only the session id, the prompts, the final message, file paths and commit subjects; it cuts known secret patterns (tokens, passwords) before storing, and drops everything else from the event.
+
+### Turning the auto-episode off
+
+In Claude Code, open `/config` and switch off the plugin's «Автоэпизод» option (`auto_episode`, on by default). Restart Claude Code to be sure the hooks pick up the change. With the auto-episode off, the hooks still send prompts and turn signals to get the one-line hints, but the server stores nothing. To send nothing at all, uninstall the plugin or disable it in `/plugin`.
 
 ## Installation
 
