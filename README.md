@@ -18,6 +18,10 @@ At the end of every agent turn (`Stop`): the project name, the hook event (sessi
 
 Command output (tool results, stdout and stderr) and file contents are never sent. The server keeps only the session id, the prompts, the final message, file paths and commit subjects; it cuts known secret patterns (tokens, passwords) before storing, and drops everything else from the event.
 
+### When the server is unreachable
+
+If a prompt or a turn end cannot reach the server (no network, server down, too many requests), the hooks keep it in a queue in the plugin's data folder (`queue` in `${CLAUDE_PLUGIN_DATA}`): one file per prompt and one per session for the turn end (a newer turn end replaces the older one). Each file holds only the server route and the same request body as above; the token is never written there. A background hook sends the queue at the next session start or turn end, up to 20 files at a time, and deletes each file once the server has taken it or refused it for good. Files wait up to 14 days, then are deleted unsent; the queue holds at most 500 files. While the server is reachable, nothing is kept locally. With the auto-episode off, nothing is queued.
+
 ### Turning the auto-episode off
 
 In Claude Code, open `/config` and switch off the plugin's «Автоэпизод» option (`auto_episode`, on by default). Restart Claude Code to be sure the hooks pick up the change. With the auto-episode off, the hooks still send prompts and turn signals to get the one-line hints, but the server stores nothing. To send nothing at all, uninstall the plugin or disable it in `/plugin`.

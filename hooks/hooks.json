@@ -8,6 +8,12 @@
             "shell": "bash",
             "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/session_start.sh",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "shell": "bash",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/flush.sh",
+            "async": true
           }
         ]
       }
@@ -32,6 +38,12 @@
             "shell": "bash",
             "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/stop.sh",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "shell": "bash",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/flush.sh",
+            "async": true
           }
         ]
       }

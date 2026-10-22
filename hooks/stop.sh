@@ -7,7 +7,9 @@
 # сервер берёт из него только session_id и last_assistant_message. Из транскрипта (JSONL
 # Claude Code, разбор grep/sed) на сервер уходят только сигналы хода, пути правленых файлов
 # и признак недоверенного текста — вывод команд (tool_result) не уходит. Любой сбой — молча и
-# код 0. POSIX sh; на Windows — Git Bash.
+# код 0. Сервер недоступен, а автоэпизод включён — тело ждёт в очереди досылки (flush.sh),
+# один файл на сессию: новый ход заменяет прежний, как и на сервере. POSIX sh; на Windows —
+# Git Bash.
 
 [ -n "$CLAUDE_PLUGIN_OPTION_TOKEN" ] || exit 0
 event=$(cat)
@@ -97,7 +99,14 @@ fi
 body="{\"project\":$(quote "$project"),\"event\":$event,\"store\":$store"
 body="$body,\"files\":[$files],\"commits\":[$commits],\"failed\":$failed"
 body="$body,\"last_ok\":$last_ok,\"remembered\":$remembered,\"untrusted\":$untrusted}"
-out=$(post /v1/hook/stop "$body" 4) || exit 0
+sid=$(session)
+if ! out=$(post /v1/hook/stop "$body" 4); then
+	[ "$store" = true ] && [ -n "$sid" ] && enqueue "s-$sid" /v1/hook/stop "$body"
+	exit 0
+fi
+# Итог хода дошёл — прежний итог сессии в очереди устарел: досланный позже, он заменил бы
+# на сервере новый.
+[ -z "$q" ] || [ -z "$sid" ] || rm -f "$q/s-$sid" 2>/dev/null
 case $out in
 *[![:space:]]*)
 	printf '{"decision": "block", "reason": %s}\n' "$(quote "$out")"
