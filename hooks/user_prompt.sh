@@ -8,13 +8,13 @@
 # строка момента после обрыва уже ни к чему, поэтому при выключенном автоэпизоде очереди нет.
 # POSIX sh; на Windows — Git Bash.
 
-[ -n "$CLAUDE_PLUGIN_OPTION_TOKEN" ] || exit 0
 event=$(cat)
 case $event in
 *[![:space:]]*) ;;
 *) exit 0 ;;
 esac
 . "$(dirname -- "$0")/lib.sh"
+token || exit 0
 
 body="{\"project\":$(quote "$project"),\"event\":$event,\"store\":$store}"
 if ! out=$(post /v1/hook/prompt "$body" 2); then

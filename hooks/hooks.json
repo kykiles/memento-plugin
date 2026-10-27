@@ -14,6 +14,13 @@
             "shell": "bash",
             "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/flush.sh",
             "async": true
+          },
+          {
+            "type": "command",
+            "shell": "bash",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/login.sh",
+            "async": true,
+            "timeout": 660
           }
         ]
       }

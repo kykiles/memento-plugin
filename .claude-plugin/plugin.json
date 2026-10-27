@@ -1,7 +1,7 @@
 {
   "name": "memento",
   "displayName": "Memento",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Долговременная память Memento для Claude Code: MCP-сервер памяти, оглавление памяти проекта в начале сессии, автоэпизод сессии и подсказка записать факт в момент значимости.",
   "author": {
     "name": "kykiles"
@@ -20,8 +20,8 @@
     "token": {
       "type": "string",
       "title": "Токен",
-      "description": "токен клиента: python -m memento token add claude-code --rights write --user <логин> у владельца сервера",
-      "required": true,
+      "description": "необязателен: без него плагин попросит войти через GitHub",
+      "required": false,
       "sensitive": true
     },
     "auto_episode": {

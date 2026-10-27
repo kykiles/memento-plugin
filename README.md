@@ -28,16 +28,14 @@ In Claude Code, open `/config` and switch off the plugin's «Автоэпизо�
 
 ## Installation
 
-Run these two commands yourself in a terminal (PowerShell, bash or zsh), with your own token:
+Run these two commands in a terminal (PowerShell, bash or zsh). No token is needed:
 
 ```
 claude plugin marketplace add https://github.com/kykiles/memento-plugin.git
-claude plugin install memento@memento-plugin --config url=https://memento.degulator.top --config token=<token>
+claude plugin install memento@memento-plugin --config url=https://memento.degulator.top
 ```
 
-Then restart Claude Code. Keep `--config url=…` even with the default server: Claude Code does not save the option's default value.
-
-Do not paste the token into a Claude Code chat and do not ask the agent to install the plugin for you: whatever you paste stays in plain text in the session history, and auto mode blocks the install as a data leak. The token is kept in Claude Code's secure credential storage, not in the settings files. The command stays in your shell history; clear it if the machine is shared.
+Then restart Claude Code and sign in (see below). Keep `--config url=…` even with the default server: Claude Code does not save the option's default value.
 
 Alternatively, inside Claude Code:
 
@@ -46,7 +44,25 @@ Alternatively, inside Claude Code:
 /plugin install memento@memento-plugin
 ```
 
-Claude Code will ask for the server address (`https://memento.degulator.top`, without `/mcp`) and the token.
+Claude Code will ask for the server address (`https://memento.degulator.top`, without `/mcp`) and a token; leave the token empty.
+
+## Sign in
+
+The first session after installing shows one line: `Memento: войдите — https://memento.degulator.top/device?code=XXXX-XXXX (код XXXX-XXXX)`. Open the link, sign in with GitHub, check that the code on the page matches and press «Разрешить». The line is shown to you only; the agent does not see it. A background hook waits for your answer for up to 10 minutes and then keeps the plugin's token in `~/.config/memento/token` (`$XDG_CONFIG_HOME/memento/token` if set; readable only by you). The hooks use it at once; the memory tools pick it up after `/mcp` → `plugin:memento:memento` → Reconnect, or in the next session, which also starts with the memory index.
+
+The server issues a new code at most once every 10 minutes: sessions started meanwhile show the same link. If you deny access or the code expires, the next session shows a new link.
+
+If the token is revoked on the server, the plugin deletes the file and the next session asks you to sign in again.
+
+### Token instead of sign-in
+
+The owner of a Memento server can also issue a token by hand (see [Token](#token)). Pass it at install time:
+
+```
+claude plugin install memento@memento-plugin --config url=https://memento.degulator.top --config token=<token>
+```
+
+A token in the settings takes precedence over the sign-in: the plugin then works as 0.3.1 and deletes the sign-in file. Do not paste the token into a Claude Code chat and do not ask the agent to install the plugin for you: whatever you paste stays in plain text in the session history, and auto mode blocks the install as a data leak. The token is kept in Claude Code's secure credential storage, not in the settings files. The command stays in your shell history; clear it if the machine is shared.
 
 Do not add a separate `memento` MCP server with the same URL by hand: Claude Code then hides the plugin's server.
 
@@ -84,7 +100,7 @@ claude plugin update memento@memento-plugin
 
 ## Token
 
-The owner of the Memento server issues each user their own token:
+Not needed with sign-in. To use a token instead, the owner of the Memento server issues it:
 
 ```
 python -m memento token add claude-code --rights write --user <login>
@@ -100,6 +116,8 @@ python -m memento token add claude-code --rights write --user <login>
 ```
 claude plugin uninstall memento@memento-plugin
 ```
+
+Uninstalling keeps the sign-in token; delete `~/.config/memento/token` yourself.
 
 ## License
 

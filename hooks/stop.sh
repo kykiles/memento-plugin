@@ -11,7 +11,6 @@
 # один файл на сессию: новый ход заменяет прежний, как и на сервере. POSIX sh; на Windows —
 # Git Bash.
 
-[ -n "$CLAUDE_PLUGIN_OPTION_TOKEN" ] || exit 0
 event=$(cat)
 case $event in
 *[![:space:]]*) ;;
@@ -20,6 +19,7 @@ esac
 # Claude Code уже продолжает ход после блока этого хука — не зацикливаться.
 printf '%s\n' "$event" | grep -q '"stop_hook_active": *true' && exit 0
 . "$(dirname -- "$0")/lib.sh"
+token || exit 0
 
 # В строке JSON кавычка всегда экранирована, поэтому `"ключ":` и `{"ключ"`, `,"ключ"`
 # бывают только в разметке, не внутри строк. Порядок ключей — как пишет Claude Code.
